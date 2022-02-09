@@ -10,6 +10,7 @@ from torch import distributions
 
 from cs285.infrastructure import pytorch_util as ptu
 from cs285.policies.base_policy import BasePolicy
+from cs285.infrastructure.util import normalize
 
 
 class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
@@ -87,6 +88,15 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # query the policy with observation(s) to get selected action(s)
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         # TODO: get this from HW1
+        if len(obs.shape) > 1:
+            observation = obs
+        else:
+            observation = obs[None]
+
+        observation = ptu.from_numpy(observation.astype(np.float32))
+        action_distribution = self(observation)
+        action = action_distribution.sample()
+        return  ptu.to_numpy(action)
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -126,6 +136,7 @@ class MLPPolicyPG(MLPPolicy):
         observations = ptu.from_numpy(observations)
         actions = ptu.from_numpy(actions)
         advantages = ptu.from_numpy(advantages)
+        m = self(observations)
 
         # TODO: update the policy using policy gradient
         # HINT1: Recall that the expression that we want to MAXIMIZE
@@ -137,7 +148,12 @@ class MLPPolicyPG(MLPPolicy):
         # HINT4: use self.optimizer to optimize the loss. Remember to
             # 'zero_grad' first
 
-        TODO
+        self.optimizer.zero_grad()
+        log_policy = m.log_prob(actions)
+        loss = -torch.mean(torch.mul(log_policy,advantages))
+        loss.backward()
+        self.optimizer.step()
+
 
         if self.nn_baseline:
             ## TODO: update the neural network baseline using the q_values as
@@ -149,7 +165,17 @@ class MLPPolicyPG(MLPPolicy):
             ## HINT2: You will need to convert the targets into a tensor using
                 ## ptu.from_numpy before using it in the loss
 
-            TODO
+            m_baseline = self.baseline(observations).squeeze()
+            qvals_normalized = normalize(q_values, np.mean(q_values), np.std(q_values))
+            targets = ptu.from_numpy(qvals_normalized)
+
+            assert m_baseline.shape == targets.shape
+
+            self.baseline_optimizer.zero_grad()
+            baseline_loss = self.baseline_loss(m_baseline, targets)
+            baseline_loss.backward()
+            self.baseline_optimizer.step()
+
 
         train_log = {
             'Training Loss': ptu.to_numpy(loss),
@@ -161,10 +187,8 @@ class MLPPolicyPG(MLPPolicy):
             Helper function that converts `observations` to a tensor,
             calls the forward method of the baseline MLP,
             and returns a np array
-
             Input: `observations`: np.ndarray of size [N, 1]
             Output: np.ndarray of size [N]
-
         """
         observations = ptu.from_numpy(observations)
         pred = self.baseline(observations)
