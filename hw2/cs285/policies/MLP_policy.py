@@ -172,7 +172,18 @@ class MLPPolicyPG(MLPPolicy):
             ## HINT2: You will need to convert the targets into a tensor using
                 ## ptu.from_numpy before using it in the loss
 
-            TODO
+            targets = utils.normalize(q_values, q_values.mean(), q_values.std())
+            targets = ptu.from_numpy(targets)
+
+            baseline_predictions = self.baseline(observations).squeeze(1)
+            
+            assert baseline_predictions.shape == targets.shape
+
+            baseline_loss = F.mse_loss(baseline_predictions, targets)
+
+            self.baseline_optimizer.zero_grad()
+            baseline_loss.backward()
+            self.baseline_optimizer.step()
 
         train_log = {
             'Training Loss': ptu.to_numpy(loss),
