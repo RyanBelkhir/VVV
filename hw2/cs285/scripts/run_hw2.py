@@ -83,6 +83,7 @@ def main():
 
     parser.add_argument('--save_params', action='store_true')
     parser.add_argument('--action_noise_std', type=float, default=0)
+    parser.add_argument('--log_dir', '-dir', type=str, default='')
 
     args = parser.parse_args()
 
@@ -100,7 +101,7 @@ def main():
 
     logdir_prefix = 'q2_pg_'  # keep for autograder
 
-    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data')
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/' + params['log_dir'])
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
