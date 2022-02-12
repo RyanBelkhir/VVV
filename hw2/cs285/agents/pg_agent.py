@@ -102,8 +102,6 @@ class PGAgent(BaseAgent):
             ## TODO: values were trained with standardized q_values, so ensure
                 ## that the predictions have the same mean and standard deviation as
                 ## the current batch of q_values
-            assert values_unnormalized.mean() == q_values.mean()
-            assert np.std(values_unnormalized) == np.std(q_values)
             values = (values_unnormalized * np.std(values_unnormalized)) + np.mean(values_unnormalized)
 
             if self.gae_lambda is not None:
