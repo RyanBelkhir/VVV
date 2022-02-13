@@ -24,6 +24,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
                  learning_rate=1e-4,
                  training=True,
                  nn_baseline=False,
+                 iter_per_batch=1,
                  **kwargs
                  ):
         super().__init__(**kwargs)
@@ -37,6 +38,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         self.learning_rate = learning_rate
         self.training = training
         self.nn_baseline = nn_baseline
+        self.iter_per_batch = iter_per_batch
 
         if self.discrete:
             self.logits_na = ptu.build_mlp(input_size=self.ob_dim,
@@ -139,23 +141,24 @@ class MLPPolicyPG(MLPPolicy):
         actions = ptu.from_numpy(actions)
         advantages = ptu.from_numpy(advantages)
 
-        # TODO: update the policy using policy gradient
-        # HINT1: Recall that the expression that we want to MAXIMIZE
-            # is the expectation over collected trajectories of:
-            # sum_{t=0}^{T-1} [grad [log pi(a_t|s_t) * (Q_t - b_t)]]
-        # HINT2: you will want to use the `log_prob` method on the distribution returned
-            # by the `forward` method
-        # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
-        # HINT4: use self.optimizer to optimize the loss. Remember to
-            # 'zero_grad' first
+        for i in range(self.iter_per_batch):
+            # TODO: update the policy using policy gradient
+            # HINT1: Recall that the expression that we want to MAXIMIZE
+                # is the expectation over collected trajectories of:
+                # sum_{t=0}^{T-1} [grad [log pi(a_t|s_t) * (Q_t - b_t)]]
+            # HINT2: you will want to use the `log_prob` method on the distribution returned
+                # by the `forward` method
+            # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
+            # HINT4: use self.optimizer to optimize the loss. Remember to
+                # 'zero_grad' first
 
-        self.optimizer.zero_grad()
-        action_distribution = self(observations)
+            self.optimizer.zero_grad()
+            action_distribution = self(observations)
 
-        loss = - (action_distribution.log_prob(actions) * advantages).sum()
-        loss.backward()
+            loss = - (action_distribution.log_prob(actions) * advantages).sum()
+            loss.backward()
 
-        self.optimizer.step()
+            self.optimizer.step()
 
 
 
