@@ -86,6 +86,9 @@ class RL_Trainer(object):
         else:
             self.fps = 10
 
+        self.params['agent_params']['mlp_iter'] = self.params['mlp_iter']
+
+
 
         #############
         ## AGENT
