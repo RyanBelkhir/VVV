@@ -46,7 +46,7 @@ class DQNAgent(object):
         # TODO store the latest observation ("frame") into the replay buffer
         # HINT: the replay buffer used here is `MemoryOptimizedReplayBuffer`
             # in dqn_utils.py
-        self.replay_buffer_idx =  self.replay_buffer.store(self.last_obs)
+        self.replay_buffer_idx =  self.replay_buffer.store_frame(self.last_obs)
 
         eps = self.exploration.value(self.t)
 
@@ -62,7 +62,8 @@ class DQNAgent(object):
                 # to deal with the partial observability of the environment. Get the most recent 
                 # `frame_history_len` observations using functionality from the replay buffer,
                 # and then use those observations as input to your actor. 
-            action = TODO
+            most_recent_obs =  self.replay_buffer.encode_recent_observation()
+            action = self.actor.get_action(most_recent_obs)
         
         # TODO take a step in the environment using the action from the policy
         # HINT1: remember that self.last_obs must always point to the newest/latest observation
