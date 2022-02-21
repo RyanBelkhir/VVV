@@ -66,8 +66,8 @@ class ACAgent(BaseAgent):
         re_n = ptu.from_numpy(re_n)
         terminal_n = ptu.from_numpy(terminal_n).bool()
 
-        values_s = self.critic(ob_no)
-        values_sprime = self.critic(next_ob_no)
+        values_s = self.critic.forward_np(ob_no)
+        values_sprime = self.critic.forward_np(next_ob_no)
         values_sprime[terminal_n] = 0
         q_values = re_n + self.gamma * values_sprime
         adv_n = q_values - values_s
