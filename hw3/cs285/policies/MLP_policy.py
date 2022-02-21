@@ -145,5 +145,9 @@ class MLPPolicyAC(MLPPolicy):
         loss.backward()
 
         self.optimizer.step()
+        
+        train_log = {
+            'Training Loss': ptu.to_numpy(loss),
+        }
 
         return loss.item()
