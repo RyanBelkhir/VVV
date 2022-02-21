@@ -84,6 +84,7 @@ def main():
     parser.add_argument('--which_gpu', '-gpu_id', default=0)
     parser.add_argument('--video_log_freq', type=int, default=-1)
     parser.add_argument('--scalar_log_freq', type=int, default=10)
+    parser.add_argument('--log_dir', '-dir', type=str, default='')
 
     parser.add_argument('--save_params', action='store_true')
 
@@ -101,7 +102,7 @@ def main():
     ### CREATE DIRECTORY FOR LOGGING
     ##################################
 
-    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data')
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/' + params['log_dir'])
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
