@@ -71,6 +71,7 @@ class ACAgent(BaseAgent):
         values_sprime[terminal_n] = 0
         q_values = re_n + self.gamma * values_sprime
         adv_n = q_values - values_s
+        adv_n = adv_n.detach().cpu().numpy()
 
         if self.standardize_advantages:
             adv_n = (adv_n - np.mean(adv_n)) / (np.std(adv_n) + 1e-8)
