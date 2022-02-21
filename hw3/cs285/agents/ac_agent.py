@@ -5,6 +5,7 @@ from cs285.critics.bootstrapped_continuous_critic import \
 from cs285.infrastructure.replay_buffer import ReplayBuffer
 from cs285.infrastructure.utils import *
 from cs285.policies.MLP_policy import MLPPolicyAC
+from cs285.infrastructure import pytorch_util as ptu
 from .base_agent import BaseAgent
 
 
@@ -59,6 +60,11 @@ class ACAgent(BaseAgent):
         # 3) estimate the Q value as Q(s, a) = r(s, a) + gamma*V(s')
         # HINT: Remember to cut off the V(s') term (ie set it to 0) at terminal states (ie terminal_n=1)
         # 4) calculate advantage (adv_n) as A(s, a) = Q(s, a) - V(s)
+        
+        ob_no = ptu.from_numpy(ob_no)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        re_n = ptu.from_numpy(re_n)
+        terminal_n = ptu.from_numpy(terminal_n).bool()
 
         values_s = self.critic(ob_no)
         values_sprime = self.critic(next_ob_no)
