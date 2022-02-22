@@ -42,7 +42,7 @@ def get_env_kwargs(env_name):
             'learning_starts': 50000,
             'target_update_freq': 10000,
             'replay_buffer_size': int(1e6),
-            'num_timesteps': int(2e8),
+            'num_timesteps': int(1e8),
             'q_func': create_atari_q_network,
             'learning_freq': 4,
             'grad_norm_clipping': 10,
@@ -122,7 +122,7 @@ def atari_exploration_schedule(num_timesteps):
     return PiecewiseSchedule(
         [
             (0, 1.0),
-            (1e6, 0.1),
+            (1e4, 0.1),
             (num_timesteps / 8, 0.01),
         ], outside_value=0.01
     )
